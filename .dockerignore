@@ -1,0 +1,7 @@
+venv/
+.flake8
+.gitignore
+.git
+.pre-commit-config.yaml
+.isort.cfg
+README.md
