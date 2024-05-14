@@ -5,3 +5,4 @@ python-dotenv==1.0.1
 dnspython==2.6.1
 pydantic_settings==2.2.1
 requests==2.31.0
+pre-commit==3.7.1
