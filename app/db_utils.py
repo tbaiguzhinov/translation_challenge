@@ -1,10 +1,8 @@
 import certifi
-
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
 from app.config import settings
-
 
 client = MongoClient(
     uri=settings.MONGODB_URL,
