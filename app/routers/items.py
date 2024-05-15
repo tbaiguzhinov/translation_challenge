@@ -1,28 +1,39 @@
 from fastapi import APIRouter
 
 from app.db_utils import client
+from app.definition_utils import get_word_info
+from app.google_api_utils import get_translation
 from app.models import Word
 
 router = APIRouter()
 db = client["translation"]
+collection = db["words"]
 
 
 @router.get("/words/{word}", tags=["words"])
 async def get_word(word: str, target: str = "es"):
-    query = Word(word=word)
-    result = await db.fetch_one(query)
+    query = {"word": word.lower()}
+    result = collection.find_one(query)
 
-    # Check if the word exists
     if result:
-        # Word exists in the database
-        # Add your logic here
-        pass
+        word = Word(**result)
     else:
-        # Word does not exist in the database
-        # Add your logic here
-        pass
+        defintions = await get_word_info(word)
+        word = Word(
+            word=word.lower(),
+            definitions=defintions,
+            translations={},
+        )
+        collection.insert_one(word.dict())
 
-    return [{"word": word, "target": target}]
+    if target not in word.translations:
+        word.translations[target] = await get_translation(
+            word.word, target_language=target
+        )
+        collection.update_one(query, {"$set": word.dict()})
+
+    word.translations = {target: word.translations[target]}
+    return word
 
 
 @router.get("/words/", tags=["words"])
@@ -55,5 +66,9 @@ async def get_words(
 
 
 @router.delete("/words/{word}", tags=["words"])
-async def delete_word():
-    return {"username": "fakecurrentuser"}
+async def delete_word(word: str):
+    query = {"word": word.lower()}
+    result = collection.delete_one(query)
+    if not result.deleted_count:
+        return {"message": "Word not found"}
+    return {"message": "Word deleted successfully"}
