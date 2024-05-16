@@ -24,13 +24,13 @@ async def get_word(word: str, target: str = "es"):
             definitions=defintions,
             translations={},
         )
-        collection.insert_one(word.dict())
+        collection.insert_one(word.model_dump())
 
     if target not in word.translations:
         word.translations[target] = await get_translation(
             word.word, target_language=target
         )
-        collection.update_one(query, {"$set": word.dict()})
+        collection.update_one(query, {"$set": word.model_dump()})
 
     word.translations = {target: word.translations[target]}
     return word
