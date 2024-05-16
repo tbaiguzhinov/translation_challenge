@@ -36,13 +36,22 @@ async def get_word(word: str, target: str = "es"):
     return word
 
 
+@router.delete("/words/{word}", tags=["words"])
+async def delete_word(word: str):
+    query = {"word": word.lower()}
+    result = collection.delete_one(query)
+    if not result.deleted_count:
+        return {"message": "Word not found"}
+    return {"message": "Word deleted successfully"}
+
+
 @router.get("/words/", tags=["words"])
 async def get_words(
-    username: str,
     page: int = 1,
     limit: int = 10,
     sort: str = None,
     filter_word: str = None,
+    include_details: bool = False,
 ):
     query = {}
     if filter_word:
@@ -51,11 +60,15 @@ async def get_words(
         query["$sort"] = sort
 
     skip = (page - 1) * limit
-    words = await db.find(query).skip(skip).limit(limit).to_list(None)
-    total_words = await db.count_documents(query)
+    words = list(collection.find(query).skip(skip).limit(limit))
+    total_words = collection.count_documents(query)
+
+    if not include_details:
+        words = [word["word"] for word in words]
+    else:
+        words = [Word(**word) for word in words]
 
     return {
-        "username": username,
         "page": page,
         "limit": limit,
         "sort": sort,
@@ -63,12 +76,3 @@ async def get_words(
         "total_words": total_words,
         "words": words,
     }
-
-
-@router.delete("/words/{word}", tags=["words"])
-async def delete_word(word: str):
-    query = {"word": word.lower()}
-    result = collection.delete_one(query)
-    if not result.deleted_count:
-        return {"message": "Word not found"}
-    return {"message": "Word deleted successfully"}

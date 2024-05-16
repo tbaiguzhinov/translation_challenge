@@ -12,6 +12,8 @@ async def get_word_info(word):
                 "definitions": [sub_item for sub_item in item["definitions"]],
                 "synonyms": item["synonyms"],
             }
+            for definition in definitions[item["partOfSpeech"]]["definitions"]:
+                definition.pop("antonyms", None)
         return definitions
     except Exception as e:
         print(f"Error occurred: {e}")

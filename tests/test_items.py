@@ -18,14 +18,19 @@ def setup_function():
         word="apple",
         definitions={
             "noun": {
-                "definition": [
-                    "a round fruit with red or green skin and firm white flesh"
+                "definitions": [
+                    {
+                        "definition": "a round fruit with red or green skin and firm white flesh",
+                        "synonyms": [],
+                        "examples": [],
+                    }
                 ]
             }
         },
         translations={"es": ["manzana"]},
     )
-    collection.insert_one(word.model_dump())
+    if not collection.find_one({"word": "apple"}):
+        collection.insert_one(word.model_dump())
 
 
 def teardown_function():
@@ -42,8 +47,12 @@ async def test_get_word_existing():
         word="apple",
         definitions={
             "noun": {
-                "definition": [
-                    "a round fruit with red or green skin and firm white flesh"
+                "definitions": [
+                    {
+                        "definition": "a round fruit with red or green skin and firm white flesh",
+                        "synonyms": [],
+                        "examples": [],
+                    }
                 ]
             }
         },
@@ -56,11 +65,15 @@ async def test_get_word_existing():
 @pytest.mark.asyncio
 async def test_get_word_non_existing(mock_get_translation, mock_get_word_info):
     mock_get_translation.return_value = ["naranja"]
-    mock_get_word_info.return_value = {
-        "noun": {
-            "definition": ["a round fruit with red or green skin and firm white flesh"]
+    mock_get_word_info.return_value = [
+        {
+            "noun": {
+                "definition": [
+                    "a round fruit with red or green skin and firm white flesh"
+                ]
+            }
         }
-    }
+    ]
     response = await get_word("orange")
     response == Word(
         word="orange",
