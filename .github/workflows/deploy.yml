@@ -36,5 +36,9 @@ jobs:
           gcloud run deploy your-fastapi-app \
             --image gcr.io/steel-autonomy-299111/your-fastapi-app:$GITHUB_SHA \
             --platform managed \
-            --region YOUR_REGION \
+            --region me-central1 \
             --allow-unauthenticated
+        env:
+          MONGODB_URL: ${{ secrets.MONGODB_URL }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          AUTHENTICATION: ${{ secrets.AUTHENTICATION }}
