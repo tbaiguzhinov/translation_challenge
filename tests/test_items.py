@@ -105,7 +105,7 @@ def test_get_words():
     assert response.status_code == 200
     assert response.json()["page"] == 1
     assert response.json()["limit"] == 10
-    assert response.json()["sort"] is None
+    assert response.json()["sort_ascending"] == 1
     assert response.json()["filter_word"] is None
 
 
@@ -114,7 +114,17 @@ def test_get_words_with_details():
     assert response.status_code == 200
     assert response.json()["page"] == 1
     assert response.json()["limit"] == 10
-    assert response.json()["sort"] is None
+    assert response.json()["sort_ascending"]
     assert response.json()["filter_word"] == "apple"
     assert response.json()["words"][0]["translations"] == {"es": ["manzana"]}
     assert response.json()["words"][0]["word"] == "apple"
+
+
+def test_get_words_with_sorting():
+    response = client.get("/api/words/?sort_ascending=false&filter_word=apple")
+    assert response.status_code == 200
+    assert response.json()["page"] == 1
+    assert response.json()["limit"] == 10
+    assert not response.json()["sort_ascending"]
+    assert response.json()["filter_word"] == "apple"
+    assert response.json()["words"][0] == "apple"

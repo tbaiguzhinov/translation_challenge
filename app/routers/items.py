@@ -49,18 +49,18 @@ async def delete_word(word: str):
 async def get_words(
     page: int = 1,
     limit: int = 10,
-    sort: str = None,
+    sort_ascending: bool = True,
     filter_word: str = None,
     include_details: bool = False,
 ):
     query = {}
     if filter_word:
         query["word"] = {"$regex": filter_word, "$options": "i"}
-    if sort:
-        query["$sort"] = sort
 
     skip = (page - 1) * limit
-    words = list(collection.find(query).skip(skip).limit(limit))
+    sort = 1 if sort_ascending else -1
+    words = collection.find(query).skip(skip).limit(limit).sort("word", sort)
+
     total_words = collection.count_documents(query)
 
     if not include_details:
@@ -71,7 +71,7 @@ async def get_words(
     return {
         "page": page,
         "limit": limit,
-        "sort": sort,
+        "sort_ascending": sort_ascending,
         "filter_word": filter_word,
         "total_words": total_words,
         "words": words,

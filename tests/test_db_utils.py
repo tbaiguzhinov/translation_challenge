@@ -1,3 +1,5 @@
+import pytest
+
 from app.db_utils import client as db_client
 
 
@@ -26,5 +28,10 @@ def setup_function():
 setup_function()
 
 
-def test_failed_ping():
-    assert db_client.server_info() == {"ok": 1}
+def test_ping():
+    assert db_client.server_info()["ok"] == 1.0
+
+
+def test_exception_handling():
+    with pytest.raises(Exception):
+        db_client.admin.command("invalid_command")
