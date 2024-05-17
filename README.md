@@ -84,6 +84,7 @@ The project uses environment variables for configuration. Edit the `.env` file a
 
 - MONGODB_URL - the url for MongoDB database
 - GOOGLE_API_KEY - google API key for Google Translate
+- AUTHENTICATION (optional) - if set to True, switches on authentication by Token
 
 ### Testing
 

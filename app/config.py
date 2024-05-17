@@ -9,6 +9,7 @@ load_dotenv()
 class Settings(BaseSettings):
     GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY")
     MONGODB_URL: str = os.getenv("MONGODB_URL")
+    AUTHENTICATION: bool = os.getenv("AUTHENTICATION", "False") == "True"
 
 
 settings = Settings()
