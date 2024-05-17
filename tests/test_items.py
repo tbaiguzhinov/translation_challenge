@@ -98,3 +98,23 @@ def test_delete_word_non_existing():
     response = client.delete("/api/words/pear")
     assert response.status_code == 200
     assert response.json() == {"message": "Word not found"}
+
+
+def test_get_words():
+    response = client.get("/api/words/")
+    assert response.status_code == 200
+    assert response.json()["page"] == 1
+    assert response.json()["limit"] == 10
+    assert response.json()["sort"] is None
+    assert response.json()["filter_word"] is None
+
+
+def test_get_words_with_details():
+    response = client.get("/api/words/?include_details=true&filter_word=apple")
+    assert response.status_code == 200
+    assert response.json()["page"] == 1
+    assert response.json()["limit"] == 10
+    assert response.json()["sort"] is None
+    assert response.json()["filter_word"] == "apple"
+    assert response.json()["words"][0]["translations"] == {"es": ["manzana"]}
+    assert response.json()["words"][0]["word"] == "apple"
