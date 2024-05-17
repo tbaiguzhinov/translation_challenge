@@ -5,3 +5,13 @@ venv/
 .pre-commit-config.yaml
 .isort.cfg
 README.md
+Dockerfile
+__pycache__/
+htmlcov/
+tests/
+pytest.ini
+.DS_Store
+.coverage
+.coveragerc
+.dockerignore
+.pytest_cache
