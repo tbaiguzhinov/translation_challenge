@@ -1,0 +1,40 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+          export_default_credentials: true
+
+      - name: Configure Docker
+        run: |
+          gcloud auth configure-docker
+
+      - name: Build Docker image
+        run: |
+          docker build -t gcr.io/steel-autonomy-299111/your-fastapi-app:$GITHUB_SHA .
+
+      - name: Push Docker image
+        run: |
+          docker push gcr.io/steel-autonomy-299111/your-fastapi-app:$GITHUB_SHA
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy your-fastapi-app \
+            --image gcr.io/steel-autonomy-299111/your-fastapi-app:$GITHUB_SHA \
+            --platform managed \
+            --region YOUR_REGION \
+            --allow-unauthenticated
