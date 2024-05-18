@@ -29,8 +29,7 @@ jobs:
 
       - name: SSH into VM and deploy
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa tim.baiguzhinov@34.18.69.100 "
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa tim_baiguzhinov@34.18.69.100 "
             cd /home/tim_baiguzhinov/translation_challenge &&
-            chmod +x deploy.sh &&
             ./deploy.sh"
         shell: bash
