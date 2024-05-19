@@ -10,25 +10,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
-          python-version: 3.x
+          python-version: "3.x"
 
       - name: Install dependencies
         run: pip install -r requirements.txt
+
+      - name: Set up environment variables
+        run: |
+          echo "GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}" >> $GITHUB_ENV
+          echo "MONGODB_URL=${{ secrets.MONGODB_URL }}" >> $GITHUB_ENV
+
+      - name: Debug environment variables
+        run: printenv | grep 'GOOGLE_API_KEY\|MONGODB_URL'
 
       - name: Run tests
         run: python3 -m pytest
 
   deploy:
     runs-on: ubuntu-latest
-
+    needs: test
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up SSH key
         run: |
@@ -36,6 +44,11 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
         shell: bash
+
+      - name: Set up Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
 
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
@@ -46,7 +59,8 @@ jobs:
 
       - name: SSH into VM and deploy
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa tim_baiguzhinov@34.18.69.100 "
-            cd /home/tim_baiguzhinov/translation_challenge &&
-            ./deploy.sh"
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.VM_USER }}@${{ secrets.VM_IP }} "
+            cd /home/${{ secrets.VM_USER }}/translation_challenge &&
+            docker-compose down --volumes --remove-orphans &&
+            docker-compose up --build -d"
         shell: bash
