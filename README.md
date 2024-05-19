@@ -2,6 +2,10 @@
 
 This is a microservice providing a JSON API, working with word definitions/translations taken from Google Translate.
 
+Deployed version of the service is on `http://34.18.69.100:8000/docs`. Access token is provided separately.
+
+CI/CD pipeline includes test and deploy scripts.
+
 ## Features
 
 ### GET /api/word/<str>
